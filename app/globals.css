@@ -1,0 +1,404 @@
+@import "tailwindcss";
+
+:root {
+  --background: #05050a;
+  --foreground: #f7f9ff;
+  --primary: #00f0ff;
+  --secondary: #9ca3af;
+  --accent: #bd00ff;
+  --danger: #dc2626;
+  --panel: rgba(8, 14, 32, 0.74);
+  --panel-strong: rgba(10, 18, 40, 0.92);
+  --panel-border: rgba(88, 148, 255, 0.28);
+  --panel-glow: rgba(0, 240, 255, 0.16);
+  --panel-glow-strong: rgba(0, 240, 255, 0.36);
+  --glow-cyan: rgba(0, 240, 255, 0.2);
+  --glow-violet: rgba(189, 0, 255, 0.22);
+  --star-color: rgba(226, 238, 255, 0.6);
+  --tarot-ink: rgba(0, 240, 255, 0.18);
+  --tarot-line: rgba(255, 255, 255, 0.06);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-panel-border: var(--panel-border);
+
+  --font-sans: var(--font-body);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  background-image: radial-gradient(
+      1200px 720px at 10% 0%,
+      var(--glow-cyan),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 700px at 85% 15%,
+      var(--glow-violet),
+      transparent 62%
+    ),
+    linear-gradient(180deg, #05050a 0%, #050510 55%, #05040b 100%);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-body), sans-serif;
+  min-height: 100%;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(1px 1px at 20px 30px, var(--star-color), transparent 1px),
+    radial-gradient(1px 1px at 60px 90px, rgba(190, 235, 255, 0.7), transparent 1px),
+    radial-gradient(1.2px 1.2px at 140px 160px, rgba(140, 210, 255, 0.55), transparent 1.2px),
+    radial-gradient(1px 1px at 200px 60px, rgba(255, 255, 255, 0.5), transparent 1px);
+  background-size: 220px 220px;
+  opacity: 0.55;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+      800px 400px at 70% 70%,
+      rgba(0, 240, 255, 0.08),
+      transparent 70%
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  z-index: 0;
+}
+
+.app-root {
+  position: relative;
+  z-index: 1;
+}
+
+.neo-navbar {
+  background: rgba(5, 8, 22, 0.82);
+  border-bottom: 1px solid var(--panel-border);
+  box-shadow: 0 10px 30px rgba(5, 10, 30, 0.45);
+  backdrop-filter: blur(18px);
+}
+
+.neo-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: inset 0 0 0 1px rgba(120, 170, 255, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.neo-card {
+  background: linear-gradient(
+    145deg,
+    rgba(10, 18, 40, 0.94) 0%,
+    rgba(6, 10, 24, 0.88) 100%
+  );
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 24px 60px rgba(4, 8, 24, 0.55);
+  backdrop-filter: blur(14px);
+}
+
+.neo-card-alt {
+  background: linear-gradient(
+    150deg,
+    rgba(14, 26, 58, 0.95),
+    rgba(9, 16, 34, 0.9)
+  );
+  border: 1px solid rgba(120, 180, 255, 0.25);
+}
+
+.neo-chip {
+  background: rgba(0, 240, 255, 0.16);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.neo-outline-btn {
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  background: rgba(6, 12, 28, 0.4);
+  color: var(--foreground);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.neo-outline-btn:hover {
+  border-color: rgba(0, 240, 255, 0.8);
+  background: rgba(0, 240, 255, 0.14);
+  color: #d6f9ff;
+}
+
+.neo-glow-btn {
+  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.25);
+}
+
+.neo-control-btn {
+  border: 1px solid var(--panel-border);
+  background: rgba(6, 12, 28, 0.6);
+  color: var(--foreground);
+  box-shadow: 0 8px 18px rgba(6, 12, 28, 0.45);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.neo-control-btn:hover {
+  border-color: rgba(0, 240, 255, 0.7);
+  background: rgba(0, 240, 255, 0.14);
+  color: #d8fbff;
+}
+
+.section-title {
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+
+.glow-line {
+  height: 2px;
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.8), transparent);
+}
+
+.tarot-card {
+  position: relative;
+  background-image:
+    radial-gradient(circle at 20% 18%, rgba(0, 240, 255, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 75%, rgba(255, 214, 102, 0.08), transparent 46%),
+    radial-gradient(circle at 50% 55%, rgba(255, 255, 255, 0.05), transparent 55%),
+    linear-gradient(160deg, rgba(10, 18, 40, 0.96), rgba(4, 8, 22, 0.95)),
+    repeating-linear-gradient(45deg, transparent 0 10px, var(--tarot-line) 10px 11px),
+    repeating-linear-gradient(-45deg, transparent 0 16px, var(--tarot-ink) 16px 17px);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 0 20px 45px rgba(0, 12, 30, 0.6);
+  overflow: hidden;
+}
+
+.tarot-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tarot-card::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.tarot-card::after {
+  content: "";
+  position: absolute;
+  inset: 22% 20%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(0, 240, 255, 0.18) 0 36%, transparent 37%),
+    repeating-conic-gradient(
+      rgba(255, 255, 255, 0.12) 0 8deg,
+      transparent 8deg 28deg
+    );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.glass-card {
+  position: relative;
+  background: rgba(6, 10, 24, 0.65);
+  background-image:
+    radial-gradient(circle at 25% 20%, rgba(0, 240, 255, 0.08), transparent 45%),
+    radial-gradient(circle at 70% 80%, rgba(255, 214, 102, 0.06), transparent 50%),
+    repeating-linear-gradient(45deg, transparent 0 12px, rgba(255, 255, 255, 0.03) 12px 13px);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  box-shadow: 0 16px 35px rgba(0, 240, 255, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+
+.glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.glass-card::after {
+  content: "";
+  position: absolute;
+  inset: 24% 22%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(0, 240, 255, 0.16) 0 34%, transparent 35%),
+    repeating-conic-gradient(
+      rgba(255, 255, 255, 0.1) 0 7deg,
+      transparent 7deg 26deg
+    );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.flip-card {
+  perspective: 1200px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.flip-face.back {
+  transform: rotateY(180deg);
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.scroll-row::-webkit-scrollbar {
+  height: 8px;
+}
+
+.question-body :is(p, li) {
+  font-size: 1.5rem;
+  line-height: 1.75;
+  color: #fffdf0;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.28);
+}
+
+.question-body :is(h1, h2, h3) {
+  color: #fffdf0;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.28);
+}
+
+.answer-body {
+  font-family: "仓耳今楷", "STKaiti", serif;
+}
+
+.answer-body :is(p, li) {
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.answer-body :is(h1, h2, h3) {
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.scroll-row::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+}
+
+.scroll-row::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.35);
+  border-radius: 999px;
+}
+
+.scroll-row {
+  scrollbar-color: rgba(0, 240, 255, 0.35) rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+}
+
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.35);
+  border-radius: 999px;
+}
+
+.modal-scroll {
+  scrollbar-color: rgba(0, 240, 255, 0.35) rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 45px rgba(0, 240, 255, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .flip-card-inner {
+    transition: none;
+  }
+}
