@@ -108,7 +108,7 @@ export default function HomePage() {
             <div className="grid gap-6 md:grid-cols-3">
               <div>
                 <p className="section-title text-xs text-primary">FLOW</p>
-              <h3 className="font-display mt-3 text-2xl font-semibold text-foreground">沉浸式刷题节奏</h3>
+              <h3 className="font-display mt-3 text-2xl font-semibold text-foreground">沉浸学习节奏</h3>
               </div>
               <div className="text-sm text-secondary">
                 平滑滚动导航，快速跳转题目模块。卡片点击即放大，翻转查看答案，像 Anki 一样高效。
@@ -156,7 +156,7 @@ export default function HomePage() {
       <footer className="py-12">
         <div className="mx-auto w-full max-w-[1280px] px-4 md:px-12">
           <div className="flex flex-col items-start justify-between gap-6 border-t border-white/10 pt-8 text-sm text-secondary md:flex-row md:items-center">
-            <span>Way to AI PM · 面试刷题系统</span>
+            <span>Way to AI PM · 学习系统</span>
             <span>Designed for focused practice · 2026</span>
           </div>
         </div>

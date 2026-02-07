@@ -16,8 +16,8 @@ const body = Spline_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Way to AI PM - 产品经理面试刷题",
-  description: "产品经理面试刷题网站，支持分类浏览与 Anki 风格卡片翻转。",
+  title: "Way to AI PM - 产品经理学习系统",
+  description: "产品经理学习网站，支持分类浏览与 Anki 风格卡片翻转。",
 };
 
 export default function RootLayout({

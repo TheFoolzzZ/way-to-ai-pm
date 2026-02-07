@@ -120,7 +120,7 @@ export default function Navbar({ sections, onStart }: NavbarProps) {
             onClick={onStart}
             className="neo-outline-btn rounded-full px-5 py-2 text-sm font-semibold"
           >
-            开始刷题
+            开始学习
           </button>
         </div>
 
@@ -154,7 +154,7 @@ export default function Navbar({ sections, onStart }: NavbarProps) {
               onClick={onStart}
               className="neo-outline-btn rounded-full px-5 py-2 text-sm font-semibold"
             >
-              开始刷题
+              开始学习
             </button>
           </div>
         </div>

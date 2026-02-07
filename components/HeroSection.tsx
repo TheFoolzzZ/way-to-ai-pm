@@ -58,7 +58,7 @@ export default function HeroSection({ onStart, demoQuestion }: HeroSectionProps)
                 Way to AI product manager
               </h2>
               <p className="text-lg text-secondary md:text-xl">
-                覆盖产品思维、项目经历、技术背景、商业分析等核心面试维度。
+                覆盖产品思维、项目经历、技术背景、商业分析等核心维度。
               </p>
             </div>
 
@@ -66,7 +66,7 @@ export default function HeroSection({ onStart, demoQuestion }: HeroSectionProps)
               <span className="mt-1 h-10 w-[3px] bg-primary" />
               <div>
                 翻转即见答案，像 Anki 一样高效记忆，
-                <span className="text-foreground">沉浸式刷题节奏</span>。
+                <span className="text-foreground">沉浸式学习节奏</span>。
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@ export default function HeroSection({ onStart, demoQuestion }: HeroSectionProps)
               className="neo-glow-btn rounded-full px-6 py-3 text-base"
               onClick={onStart}
             >
-              开始刷题
+              开始学习
               <ArrowDown className="ml-2 h-4 w-4" />
             </Button>
             <Button
