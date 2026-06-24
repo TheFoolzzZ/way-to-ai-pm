@@ -1,12 +1,13 @@
 "use client";
 
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { QuestionItem } from "@/data/mock-data";
+import { supabase } from "@/lib/supabase";
 
 type MarkdownProps = HTMLAttributes<HTMLElement> & { node?: unknown };
 
@@ -34,21 +35,16 @@ const markdownComponents = {
 type QuestionModalProps = {
   question: QuestionItem | null;
   onClose: () => void;
+  footer?: ReactNode;
+  isExiting?: boolean;
 };
 
-export default function QuestionModal({ question, onClose }: QuestionModalProps) {
-  const [mounted, setMounted] = useState(false);
-  const [flipped, setFlipped] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!question) return;
-    setFlipped(false);
-  }, [question]);
-
+export default function QuestionModal({
+  question,
+  onClose,
+  footer,
+  isExiting = false,
+}: QuestionModalProps) {
   useEffect(() => {
     if (!question) return;
 
@@ -62,11 +58,11 @@ export default function QuestionModal({ question, onClose }: QuestionModalProps)
     return () => window.removeEventListener("keydown", handleKey);
   }, [question, onClose]);
 
-  if (!question || !mounted) return null;
+  if (!question || typeof document === "undefined") return null;
 
   return createPortal(
     <div
-      className="modal-root fixed inset-0 z-[999] flex min-h-screen w-screen items-center justify-center overflow-y-auto bg-black/70 px-4 py-12 backdrop-blur-sm"
+      className="modal-root fixed inset-0 z-[999] flex min-h-screen w-screen items-center justify-center overflow-x-hidden overflow-y-auto bg-black/70 px-4 py-12 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -81,53 +77,102 @@ export default function QuestionModal({ question, onClose }: QuestionModalProps)
           <X className="h-5 w-5" />
         </button>
 
-        <div className="flip-card mx-auto w-[520px] aspect-[2.5/3.5] max-h-[80vh]">
-          <div className={`flip-card-inner ${flipped ? "flipped" : ""}`}>
-            <button
-              type="button"
-              className="flip-face front glass-card flex h-full w-full flex-col rounded-3xl p-8 text-left"
-              onClick={() => setFlipped(true)}
-            >
-              <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-secondary">
-                <span>QUESTION</span>
-                <span className="text-primary">FRONT</span>
-              </div>
-
-              <div className="modal-scroll question-body mt-6 flex flex-1 items-center justify-center overflow-y-auto px-4 text-center">
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                  {question.question}
-                </ReactMarkdown>
-              </div>
-
-              <div className="pt-6 text-sm text-secondary">
-                ♾️ 点击翻转查看答案
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className="flip-face back glass-card flex h-full w-full flex-col rounded-3xl p-8 text-left"
-              onClick={() => setFlipped(false)}
-            >
-              <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-secondary">
-                <span>ANSWER KEY</span>
-                <span className="text-accent">BACK</span>
-              </div>
-
-              <div className="modal-scroll answer-body mt-6 flex-1 space-y-4 overflow-y-auto pr-2">
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                  {question.answer}
-                </ReactMarkdown>
-              </div>
-
-              <div className="pt-6 text-sm text-secondary">
-                ♾️ 点击翻回题目
-              </div>
-            </button>
-          </div>
-        </div>
+        <QuestionFlipCard key={question.id} question={question} isExiting={isExiting} />
+        {footer ? <div className="mx-auto mt-4 w-full max-w-[720px]">{footer}</div> : null}
       </div>
     </div>,
     document.body
+  );
+}
+
+function QuestionFlipCard({
+  question,
+  isExiting,
+}: {
+  question: QuestionItem;
+  isExiting: boolean;
+}) {
+  const [flipped, setFlipped] = useState(false);
+  // 答案按需加载：列表里 answer 为空，点开时才查
+  const [answer, setAnswer] = useState(question.answer ?? "");
+  const [loadingAnswer, setLoadingAnswer] = useState(!question.answer);
+
+  useEffect(() => {
+    setAnswer(question.answer ?? "");
+    setLoadingAnswer(!question.answer);
+    if (question.answer) return;
+    if (!supabase) return;
+
+    let mounted = true;
+    supabase
+      .from("questions")
+      .select("answer")
+      .eq("id", question.id)
+      .single()
+      .then(({ data, error }) => {
+        if (!mounted) return;
+        if (error || !data?.answer) {
+          setLoadingAnswer(false);
+          return;
+        }
+        setAnswer(data.answer);
+        setLoadingAnswer(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [question.id, question.answer]);
+
+  return (
+    <div className="flip-card mx-auto w-full max-w-[520px] aspect-[2.5/3.5] max-h-[80vh]">
+      <div className={`flip-card-inner ${flipped ? "flipped" : ""} ${isExiting ? "exiting" : ""}`}>
+        <button
+          type="button"
+          className="flip-face front glass-card flex h-full w-full flex-col rounded-3xl p-8 text-left"
+          onClick={() => setFlipped(true)}
+        >
+          <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-secondary">
+            <span>QUESTION</span>
+            <span className="text-primary">FRONT</span>
+          </div>
+
+          <div className="modal-scroll question-body mt-6 flex flex-1 items-center justify-center overflow-x-hidden overflow-y-auto px-4 text-center">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+              {question.question}
+            </ReactMarkdown>
+          </div>
+
+          <div className="pt-6 text-sm text-secondary">
+            ♾️ 点击翻转查看答案
+          </div>
+        </button>
+
+        <button
+          type="button"
+          className="flip-face back glass-card flex h-full w-full flex-col rounded-3xl p-8 text-left"
+          onClick={() => setFlipped(false)}
+        >
+          <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-secondary">
+            <span>ANSWER KEY</span>
+            <span className="text-accent">BACK</span>
+          </div>
+
+          <div className="modal-scroll answer-body mt-6 flex-1 space-y-4 overflow-x-hidden overflow-y-auto pr-2">
+            {loadingAnswer ? (
+              <p className="text-sm text-secondary">正在加载答案...</p>
+            ) : (
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                {answer}
+              </ReactMarkdown>
+            )}
+          </div>
+
+          <div className="pt-6 text-sm text-secondary">
+            ♾️ 点击翻回题目
+          </div>
+        </button>
+      </div>
+    </div>
   );
 }

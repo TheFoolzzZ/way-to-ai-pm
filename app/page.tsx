@@ -4,17 +4,25 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar, { NavSection } from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import CategorySection from "@/components/CategorySection";
+import SideNav from "@/components/SideNav";
 import QuestionModal from "@/components/QuestionModal";
+import UnlockModal from "@/components/UnlockModal";
 import { mockCategories, mockQuestions, QuestionCategory, QuestionItem } from "@/data/mock-data";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
 const getCategoryAnchor = (category: QuestionCategory) => `category-${category.id}`;
+const PREVIEW_LIMIT = 5;
 
 export default function HomePage() {
+  const { isUnlocked, isReady } = useAuth();
   const [categories, setCategories] = useState<QuestionCategory[]>([]);
-  const [questions, setQuestions] = useState<QuestionItem[]>([]);
+  const [demoQuestion, setDemoQuestion] = useState<QuestionItem | undefined>(undefined);
   const [activeQuestion, setActiveQuestion] = useState<QuestionItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unlockOpen, setUnlockOpen] = useState(false);
+  const [sideNavVisible, setSideNavVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("home");
 
   useEffect(() => {
     let isMounted = true;
@@ -24,14 +32,14 @@ export default function HomePage() {
         if (!supabase) {
           if (!isMounted) return;
           setCategories(mockCategories);
-          setQuestions(mockQuestions);
+          setDemoQuestion(mockQuestions[0]);
           return;
         }
 
-        const [{ data: categoryData, error: categoryError }, { data: questionData, error: questionError }] =
+        const [{ data: categoryData, error: categoryError }, { data: firstQuestion, error: questionError }] =
           await Promise.all([
             supabase.from("question_categories").select("*").order("sort_order", { ascending: true }),
-            supabase.from("questions").select("*").order("created_at", { ascending: false }),
+            supabase.from("questions").select("*").order("created_at", { ascending: false }).limit(1).maybeSingle(),
           ]);
 
         if (categoryError || questionError) {
@@ -40,11 +48,11 @@ export default function HomePage() {
 
         if (!isMounted) return;
         setCategories((categoryData as QuestionCategory[]) || []);
-        setQuestions((questionData as QuestionItem[]) || []);
-      } catch (error) {
+        setDemoQuestion((firstQuestion as QuestionItem | null) ?? undefined);
+      } catch {
         if (!isMounted) return;
         setCategories(mockCategories);
-        setQuestions(mockQuestions);
+        setDemoQuestion(mockQuestions[0]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -57,23 +65,14 @@ export default function HomePage() {
     };
   }, []);
 
-  const categoriesWithQuestions = useMemo(() => {
-    const categoryMap = new Map<string, QuestionItem[]>();
-    questions.forEach((question) => {
-      if (!question.category_id) return;
-      const list = categoryMap.get(question.category_id) || [];
-      list.push(question);
-      categoryMap.set(question.category_id, list);
-    });
-
-    return categories
-      .map((category) => ({
+  const categoriesWithQuestions = useMemo(
+    () =>
+      categories.map((category) => ({
         category,
-        questions: categoryMap.get(category.id) || [],
         anchorId: getCategoryAnchor(category),
-      }))
-      .filter((entry) => entry.questions.length > 0);
-  }, [categories, questions]);
+      })),
+    [categories]
+  );
 
   const navSections: NavSection[] = useMemo(() => {
     const sections = categoriesWithQuestions.map((entry) => ({
@@ -83,19 +82,58 @@ export default function HomePage() {
     return [{ id: "home", label: "HOME" }, ...sections];
   }, [categoriesWithQuestions]);
 
+  // 左侧导航显隐：滚动到第一个章节时出现
+  useEffect(() => {
+    if (!categoriesWithQuestions.length) return;
+    const firstId = categoriesWithQuestions[0].anchorId;
+    const update = () => {
+      const el = document.getElementById(firstId);
+      if (!el) return;
+      setSideNavVisible(el.getBoundingClientRect().top < window.innerHeight * 0.6);
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => window.removeEventListener("scroll", update);
+  }, [categoriesWithQuestions]);
+
+  // scrollspy：跟踪当前可见章节
+  useEffect(() => {
+    if (!categoriesWithQuestions.length) return;
+    const observers: IntersectionObserver[] = [];
+    categoriesWithQuestions.forEach((entry) => {
+      const el = document.getElementById(entry.anchorId);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([e]) => {
+          if (e.isIntersecting) setActiveSection(entry.anchorId);
+        },
+        { rootMargin: "-40% 0px -50% 0px" }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach((o) => o.disconnect());
+  }, [categoriesWithQuestions]);
+
   const handleStart = () => {
+    if (!isReady || !isUnlocked) {
+      setUnlockOpen(true);
+      return;
+    }
+
     const targetId = categoriesWithQuestions[0]?.anchorId;
     if (!targetId) return;
     const element = document.getElementById(targetId);
     element?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const demoQuestion = useMemo(() => {
-    const productCategoryId =
-      categories.find((category) => category.name === "产品思维")?.id ?? "cat-product";
-    const productQuestion = questions.find((question) => question.category_id === productCategoryId);
-    return productQuestion || questions[0];
-  }, [categories, questions]);
+  const handleSideNavNavigate = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const headerOffset = 88;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -108,7 +146,9 @@ export default function HomePage() {
             <div className="grid gap-6 md:grid-cols-3">
               <div>
                 <p className="section-title text-xs text-primary">FLOW</p>
-              <h3 className="font-display mt-3 text-2xl font-semibold text-foreground">沉浸学习节奏</h3>
+                <h3 className="font-display mt-3 text-2xl font-semibold text-foreground">
+                  沉浸学习节奏
+                </h3>
               </div>
               <div className="text-sm text-secondary">
                 平滑滚动导航，快速跳转题目模块。卡片点击即放大，翻转查看答案，像 Anki 一样高效。
@@ -132,7 +172,7 @@ export default function HomePage() {
           </section>
         )}
 
-        {!loading && categoriesWithQuestions.length === 0 && (
+        {!loading && categories.length === 0 && (
           <section className="py-24">
             <div className="mx-auto w-full max-w-[1280px] px-4 md:px-12">
               <div className="neo-panel rounded-3xl p-10 text-center text-secondary">
@@ -146,12 +186,21 @@ export default function HomePage() {
           <CategorySection
             key={entry.category.id}
             category={entry.category}
-            questions={entry.questions}
             anchorId={entry.anchorId}
             onSelect={(question) => setActiveQuestion(question)}
+            isUnlocked={isUnlocked}
+            previewLimit={PREVIEW_LIMIT}
+            onRequireUnlock={() => setUnlockOpen(true)}
           />
         ))}
       </main>
+
+      <SideNav
+        sections={navSections.filter((s) => s.id !== "home")}
+        activeId={activeSection}
+        visible={sideNavVisible}
+        onNavigate={handleSideNavNavigate}
+      />
 
       <footer className="py-12">
         <div className="mx-auto w-full max-w-[1280px] px-4 md:px-12">
@@ -163,6 +212,11 @@ export default function HomePage() {
       </footer>
 
       <QuestionModal question={activeQuestion} onClose={() => setActiveQuestion(null)} />
+      <UnlockModal
+        open={unlockOpen}
+        onClose={() => setUnlockOpen(false)}
+        onUnlocked={() => setUnlockOpen(false)}
+      />
     </div>
   );
 }

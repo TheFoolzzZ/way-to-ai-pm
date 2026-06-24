@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDown } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui";
 import type { QuestionItem } from "@/data/mock-data";
 import { stripMarkdown } from "@/lib/text";
@@ -32,7 +34,7 @@ export default function HeroSection({ onStart, demoQuestion }: HeroSectionProps)
     const answer = demoQuestion?.answer ?? defaultDemo.answer;
     return {
       question: stripMarkdown(question),
-      answer: stripMarkdown(answer),
+      answer, // 保留原始 markdown，交由 ReactMarkdown 渲染
     };
   }, [demoQuestion]);
 
@@ -127,10 +129,8 @@ export default function HeroSection({ onStart, demoQuestion }: HeroSectionProps)
                       <span>ANSWER KEY</span>
                       <span className="text-accent">BACK</span>
                     </div>
-                    <div className="space-y-4">
-                      <p className="text-base text-foreground md:text-lg">
-                        {preview.answer}
-                      </p>
+                    <div className="answer-body modal-scroll mt-4 max-h-[380px] flex-1 space-y-3 overflow-y-auto pr-1 text-sm leading-relaxed text-foreground md:text-base">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{preview.answer}</ReactMarkdown>
                     </div>
                     <div className="text-xs text-secondary">Flip again to review.</div>
                   </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Chakra_Petch, Spline_Sans } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
 
 const display = Chakra_Petch({
   variable: "--font-display",
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${display.variable} ${body.variable} antialiased bg-background text-foreground`}
       >
-        <div className="app-root">{children}</div>
+        <Providers>
+          <div className="app-root">{children}</div>
+        </Providers>
       </body>
     </html>
   );

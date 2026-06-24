@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
+import UserBadge from "@/components/UserBadge";
 
 export type NavSection = {
   id: string;
@@ -18,6 +20,7 @@ export default function Navbar({ sections, onStart }: NavbarProps) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id ?? "home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isScrollingRef = useRef(false);
+  const { isUnlocked, user } = useAuth();
 
   useEffect(() => {
     if (!sections.length) return;
@@ -96,32 +99,13 @@ export default function Navbar({ sections, onStart }: NavbarProps) {
         </button>
 
         <div className="hidden items-center gap-8 md:flex">
-          {sections.map((item) => {
-            const isActive = activeSection === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleScrollTo(item.id)}
-                className={cn(
-                  "relative text-sm font-medium tracking-wide transition-all duration-200",
-                  isActive
-                    ? "text-[#dc2626] scale-110"
-                    : "text-foreground/80 hover:text-primary"
-                )}
-              >
-                {item.label}
-                {isActive && (
-                  <span className="absolute -bottom-1 left-0 right-0 h-[2px] bg-[#dc2626]" />
-                )}
-              </button>
-            );
-          })}
           <button
             onClick={onStart}
             className="neo-outline-btn rounded-full px-5 py-2 text-sm font-semibold"
           >
             开始学习
           </button>
+          {isUnlocked && user && <UserBadge username={user.username} />}
         </div>
 
         <button
@@ -136,6 +120,7 @@ export default function Navbar({ sections, onStart }: NavbarProps) {
       {isMobileMenuOpen && (
         <div className="absolute top-20 left-0 right-0 neo-panel md:hidden">
           <div className="flex flex-col gap-4 p-6">
+            {isUnlocked && user && <UserBadge username={user.username} />}
             {sections.map((item) => (
               <button
                 key={item.id}
