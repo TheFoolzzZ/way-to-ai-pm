@@ -6,6 +6,12 @@
     "regions": [
         "hkg1"
     ],
+    "crons": [
+        {
+            "path": "/api/keepalive",
+            "schedule": "13 9 * * *"
+        }
+    ],
     "headers": [
         {
             "source": "/(.*)",
