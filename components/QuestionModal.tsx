@@ -143,8 +143,10 @@ function QuestionFlipCard({
             </ReactMarkdown>
           </div>
 
-          <div className="pt-6 text-sm text-secondary">
-            ♾️ 点击翻转查看答案
+          <div className="flex items-center justify-center gap-2 pt-6 text-xs uppercase tracking-[0.3em] text-secondary">
+            <span className="inline-block h-px w-6 bg-primary/50" />
+            点击翻转查看答案
+            <span className="inline-block h-px w-6 bg-primary/50" />
           </div>
         </button>
 
@@ -155,7 +157,7 @@ function QuestionFlipCard({
         >
           <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-secondary">
             <span>ANSWER KEY</span>
-            <span className="text-accent">BACK</span>
+            <span className="text-primary">BACK</span>
           </div>
 
           <div className="modal-scroll answer-body mt-6 flex-1 space-y-4 overflow-x-hidden overflow-y-auto pr-2">
@@ -168,8 +170,10 @@ function QuestionFlipCard({
             )}
           </div>
 
-          <div className="pt-6 text-sm text-secondary">
-            ♾️ 点击翻回题目
+          <div className="flex items-center justify-center gap-2 pt-6 text-xs uppercase tracking-[0.3em] text-secondary">
+            <span className="inline-block h-px w-6 bg-primary/50" />
+            点击翻回题目
+            <span className="inline-block h-px w-6 bg-primary/50" />
           </div>
         </button>
       </div>

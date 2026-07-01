@@ -109,7 +109,7 @@ export default function UnlockModal({ open, onClose, onUnlocked }: UnlockModalPr
             disabled={!canSubmit}
             className="neo-glow-btn mt-2 w-full rounded-xl border border-primary/45 bg-primary/20 px-4 py-3 text-sm font-semibold text-foreground transition-all disabled:cursor-not-allowed disabled:opacity-45"
           >
-            {submitting ? "解锁中..." : "✨ 解锁"}
+            {submitting ? "解锁中..." : "解锁"}
           </button>
         </div>
 
