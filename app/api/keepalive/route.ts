@@ -12,11 +12,7 @@ export async function GET() {
   }
 
   // A real DB round-trip counts as incoming API activity for Supabase.
-  const { error } = await supabase
-    .from("questions")
-    .select("id")
-    .limit(1)
-    .head();
+  const { error } = await supabase.from("questions").select("id").limit(1);
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
